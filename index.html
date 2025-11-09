@@ -4,7 +4,20 @@
         <title>
             Maya's Word Analysis Helper
         </title>
-        <link rel="stylesheet" href="styles.css">
+        <style>
+        * {
+            margin: 0px;
+            padding: 0px;
+        }
+        body {
+            margin-left: 100px;
+            margin-right:100px;
+
+            margin-top: 20px;
+            min-height:100vh;
+            font-family:sans-serif;
+        }
+        </style>
     </head>
     <body>
         <h1>
@@ -14,23 +27,24 @@
         <p>
             Usable link: <a href=https://mayasapphire.github.io/mwah/index.html>https://mayasapphire.github.io/mwah/index.html</a> <br><br>
 
-            Paste a block of text, and this program will show you how many times each word
-            is used, along with every instance of that word. <br><br>
+            Paste a block of text, and this program will show you how many times each word is used.<br><br>
 
             Features:<br>
             <ul>
                 <li>This is <b>free software</b>, released under <a href=https://choosealicense.com/licenses/mit/>the MIT license</a>.<br>
                 You may use, copy, modify, and distribute this software however you wish.</li>
-                <li>No ads, no tracking, no spyware.</li>
-                <li>Very fast, does exactly what it sets out to do and nothing more.</li>
+                <li>No ads, no tracking, no spyware. Just a very fast program.</li>
+                <li>Text entered will not be sent online.<br>
+                All processing is done locally, on your own machine.</li>
+                <li>This page can be downloaded and used without an Internet connection.</li>
             </ul>
             <br>
             Limitations: <br>
                 <li>This page was designed and tested on desktop.<br>
                 It may not load properly on mobile.</li>
                 <li>This program is <b>unfinished</b>, and almost certainly has bugs.</li>
-                <li>Sorting is not currently implemented. <br>
-                You may select a sorting option, but it won't do anything.</li>
+                <li>Sorting by number of occurrences is not yet implemented. <br>
+                You may select these sorting options, but they won't do anything.</li>
             </ul>
             <br>
 
@@ -48,11 +62,15 @@ You can change the width and height of this box, too!" rows="10" cols = "100"></
                 <option value="unsorted">Do not sort</option>
                 <option value="alphabetically-ascending">Alphabetically, A to Z</option>
                 <option value="alphabetically-descending">Alphabetically, Z to A</option>
-                <option value="occurrences-ascending">Number of occurrences, low to high</option>
-                <option value="occurrences-descending">Number of occurrences, high to low</option>
+                <option value="occurrences-ascending">Number of occurrences, low to high (NOT IMPLEMENTED)</option>
+                <option value="occurrences-descending">Number of occurrences, high to low (NOT IMPLEMENTED)</option>
             </select> <br>
+            <input type="checkbox" name="remove-numbers" value="true">
+            <label for="remove-numbers" >Exclude words that only have numbers in them</label><br>
+
             <input type="submit" value="Analyze!">
 
+            <p id="loading"></p>
 
             <table>
 
@@ -62,14 +80,44 @@ You can change the width and height of this box, too!" rows="10" cols = "100"></
         <script>
 
             function analyzeText() {
+
+                // display a loading text
+                var loading = document.getElementById('loading');
+                loading.innerHTML = "Please wait...";
+
+
                 var formData = new FormData(document.querySelector('form'));
 
+                // get text, make it good
                 text = toTitleCase(formData.get('text'));
                 // /g makes the regex do the whole string instead of just the first instance
                 text = text.replace(/\n/g, " "); // turn newlines to spaces
-                text = text.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,""); // remove all punctuation
+                text = text.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()\[\]\"—‘’“”?]/g,""); // remove all punctuation
+
 
                 var textSplit = text.split(" "); // make an array of words
+
+                // if we're excluding words that only have numbers in them, we can do that now
+                if (formData.get('remove-numbers')) {
+
+                    function integerCheck(inputStr) {
+                        let isnum = /^\d+$/.test(inputStr); // test if the word contains only digits
+
+                        return !isnum; // return the opposite
+
+                    }
+                    textSplit = textSplit.filter((word) => integerCheck(word));
+                }
+
+                // if we're sorting alphabetically, it's best to do that now
+                sortOption = formData.get('sort');
+                if (sortOption == 'alphabetically-ascending') {
+                    textSplit = textSplit.sort()
+                } else if (sortOption == 'alphabetically-descending') {
+                    textSplit = textSplit.sort()
+                    textSplit = textSplit.reverse()
+
+                }
 
                 var counts = {}; // object of words and counts
 
@@ -77,24 +125,27 @@ You can change the width and height of this box, too!" rows="10" cols = "100"></
                     counts[num] = counts[num] ? counts [num] + 1 : 1;
                 }
 
-                sortOption = formData.get('sort');
+                // sort the words
+                // sortOption was already defined earlier
                 if (sortOption == 'unsorted'){
                     // leave current behavior
                 } else if (sortOption == 'alphabetically-ascending') {
-
+                    // already checked earlier
                 } else if (sortOption == 'alphabetically-descending') {
-
+                    // already checked earlier
                 } else if (sortOption == 'occurrences-ascending') {
 
                 } else if (sortOption == 'occurrences-descending') {
 
                 } else {
                     // we shouldn't get here...
+                    alert("Invalid sort option: " + sortOption + ". \n This is a bug. Please report this.")
+
                 }
 
                 // put data into table
-
                 var tbody = document.getElementById('tbody');
+
 
                 var tb = '<tr><th>Word</th><th>Number of occurrences</th></tr>' // table header
                 for (var key in counts) {
@@ -107,6 +158,9 @@ You can change the width and height of this box, too!" rows="10" cols = "100"></
                 }
                 //alert(tr);
                 tbody.innerHTML = tb;
+
+                // remove loading string
+                loading.innerHTML = "";
 
             }
 
