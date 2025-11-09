@@ -1,0 +1,131 @@
+<!doctype html>
+<html>
+    <head>
+        <title>
+            Maya's Word Analysis Helper
+        </title>
+        <link rel="stylesheet" href="styles.css">
+    </head>
+    <body>
+        <h1>
+            Maya's Word Analysis Helper
+        </h1>
+
+        <p>
+            Usable link: <a href=https://mayasapphire.github.io/mwah/index.html>https://mayasapphire.github.io/mwah/index.html</a> <br><br>
+
+            Paste a block of text, and this program will show you how many times each word
+            is used, along with every instance of that word. <br><br>
+
+            Features:<br>
+            <ul>
+                <li>This is <b>free software</b>, released under <a href=https://choosealicense.com/licenses/mit/>the MIT license</a>.<br>
+                You may use, copy, modify, and distribute this software however you wish.</li>
+                <li>No ads, no tracking, no spyware.</li>
+                <li>Very fast, does exactly what it sets out to do and nothing more.</li>
+            </ul>
+            <br>
+            Limitations: <br>
+                <li>This page was designed and tested on desktop.<br>
+                It may not load properly on mobile.</li>
+                <li>This program is <b>unfinished</b>, and almost certainly has bugs.</li>
+                <li>Sorting is not currently implemented. <br>
+                You may select a sorting option, but it won't do anything.</li>
+            </ul>
+            <br>
+
+
+            <form id="theForm" action="#" onsubmit="event.preventDefault(); analyzeText();">
+
+            <label for="text">Submit the text to be analyzed here:<br></label>
+
+            <textarea name="text" placeholder="Here is where you can paste your text.
+You can change the width and height of this box, too!" rows="10" cols = "100"></textarea><br>
+
+            <label for="sort">How should the list be sorted?</label>
+
+            <select name="sort" id="sort">
+                <option value="unsorted">Do not sort</option>
+                <option value="alphabetically-ascending">Alphabetically, A to Z</option>
+                <option value="alphabetically-descending">Alphabetically, Z to A</option>
+                <option value="occurrences-ascending">Number of occurrences, low to high</option>
+                <option value="occurrences-descending">Number of occurrences, high to low</option>
+            </select> <br>
+            <input type="submit" value="Analyze!">
+
+
+            <table>
+
+                <tbody id="tbody"></tbody>
+            </table>
+        </p>
+        <script>
+
+            function analyzeText() {
+                var formData = new FormData(document.querySelector('form'));
+
+                text = toTitleCase(formData.get('text'));
+                // /g makes the regex do the whole string instead of just the first instance
+                text = text.replace(/\n/g, " "); // turn newlines to spaces
+                text = text.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,""); // remove all punctuation
+
+                var textSplit = text.split(" "); // make an array of words
+
+                var counts = {}; // object of words and counts
+
+                for (const num of textSplit) {
+                    counts[num] = counts[num] ? counts [num] + 1 : 1;
+                }
+
+                sortOption = formData.get('sort');
+                if (sortOption == 'unsorted'){
+                    // leave current behavior
+                } else if (sortOption == 'alphabetically-ascending') {
+
+                } else if (sortOption == 'alphabetically-descending') {
+
+                } else if (sortOption == 'occurrences-ascending') {
+
+                } else if (sortOption == 'occurrences-descending') {
+
+                } else {
+                    // we shouldn't get here...
+                }
+
+                // put data into table
+
+                var tbody = document.getElementById('tbody');
+
+                var tb = '<tr><th>Word</th><th>Number of occurrences</th></tr>' // table header
+                for (var key in counts) {
+                    if (key == '') { // if it's that stupid empty string that i hate
+                        continue; // skip it
+                    }
+                    var tr = "<tr>";
+                    tr += "<td>" + key + "</td>" + "<td>" + counts[key] + "</td></tr>";
+                    tb += tr
+                }
+                //alert(tr);
+                tbody.innerHTML = tb;
+
+            }
+
+            function toTitleCase(str) {
+                return str.replace(
+                    /\w\S*/g,
+                    text => text.charAt(0).toUpperCase() + text.substring(1).toLowerCase()
+                );
+            }
+
+            function sanitize(input) {
+                if (input == null) {
+                    return null
+                }
+                return input.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#x27;").replace(/\//g, "&#x2F;").replaceAll('\r\n', '\\r\\n').replaceAll('\r', '\\r');
+            }
+
+
+        </script>
+        <p><center><i>Made with spite by MayaSapphire</i></center></p>
+    </body>
+</html>
