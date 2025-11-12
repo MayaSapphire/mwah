@@ -17,6 +17,13 @@
             min-height:100vh;
             font-family:sans-serif;
         }
+        th, td {
+            padding-left: 10px;
+            padding-right: 10px;
+            text-align: left;
+
+        }
+        tr:nth-child(even) {background-color: #f2f2f2;}
         </style>
     </head>
     <body>
@@ -40,11 +47,10 @@
             </ul>
             <br>
             Limitations: <br>
-                <li>This page was designed and tested on desktop.<br>
-                It may not load properly on mobile.</li>
-                <li>This program is <b>unfinished</b>, and almost certainly has bugs.</li>
-                <li>Sorting by number of occurrences is not yet implemented. <br>
-                You may select these sorting options, but they won't do anything.</li>
+                <li>This page was designed and tested for desktop computers.<br>
+                It may not load properly on mobile devices.</li>
+                <li>While this program is largely finished, it likely still has bugs.</li>
+                <li>Some characters (such as punctuation) may cause this program to behave incorrectly.</li>
             </ul>
             <br>
 
@@ -62,8 +68,8 @@ You can change the width and height of this box, too!" rows="10" cols = "100"></
                 <option value="unsorted">Do not sort</option>
                 <option value="alphabetically-ascending">Alphabetically, A to Z</option>
                 <option value="alphabetically-descending">Alphabetically, Z to A</option>
-                <option value="occurrences-ascending">Number of occurrences, low to high (NOT IMPLEMENTED)</option>
-                <option value="occurrences-descending">Number of occurrences, high to low (NOT IMPLEMENTED)</option>
+                <option value="occurrences-ascending">Number of occurrences, low to high</option>
+                <option value="occurrences-descending">Number of occurrences, high to low</option>
             </select> <br>
             <input type="checkbox" name="remove-numbers" value="true">
             <label for="remove-numbers" >Exclude words that only have numbers in them</label><br>
@@ -92,7 +98,7 @@ You can change the width and height of this box, too!" rows="10" cols = "100"></
                 text = toTitleCase(formData.get('text'));
                 // /g makes the regex do the whole string instead of just the first instance
                 text = text.replace(/\n/g, " "); // turn newlines to spaces
-                text = text.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()\[\]\"—‘’“”?]/g,""); // remove all punctuation
+                text = text.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()\[\]\"—‘’“”<>?]/g,""); // remove all punctuation
 
 
                 var textSplit = text.split(" "); // make an array of words
@@ -112,17 +118,17 @@ You can change the width and height of this box, too!" rows="10" cols = "100"></
                 // if we're sorting alphabetically, it's best to do that now
                 sortOption = formData.get('sort');
                 if (sortOption == 'alphabetically-ascending') {
-                    textSplit = textSplit.sort()
+                    textSplit = textSplit.sort();
                 } else if (sortOption == 'alphabetically-descending') {
-                    textSplit = textSplit.sort()
-                    textSplit = textSplit.reverse()
+                    textSplit = textSplit.sort();
+                    textSplit = textSplit.reverse();
 
                 }
 
                 var counts = {}; // object of words and counts
 
-                for (const num of textSplit) {
-                    counts[num] = counts[num] ? counts [num] + 1 : 1;
+                for (const str of textSplit) {
+                    counts[str] = counts[str] ? counts [str] + 1 : 1;
                 }
 
                 // sort the words
@@ -133,9 +139,30 @@ You can change the width and height of this box, too!" rows="10" cols = "100"></
                     // already checked earlier
                 } else if (sortOption == 'alphabetically-descending') {
                     // already checked earlier
+
                 } else if (sortOption == 'occurrences-ascending') {
 
+                    // counts is an object. we need to be an array of arrays
+                    countsArray = Object.entries(counts);
+
+                    // now that it's in an array, we can sort it
+                    countsArray.sort((a, b) => a[1] - b[1]);
+
+                    // and now we can put it back in an object so it doesn't break any other things!
+                    counts = Object.fromEntries(countsArray)
+                    // i should be banned from coding forever
+
                 } else if (sortOption == 'occurrences-descending') {
+
+                    // counts is an object. we need to be an array of arrays
+                    countsArray = Object.entries(counts);
+
+                    // now that it's in an array, we can sort it
+                    countsArray.sort((a, b) => b[1] - a[1]); // b - a makes it reversed
+
+                    // and now we can put it back in an object so it doesn't break any other things!
+                    counts = Object.fromEntries(countsArray)
+                    // i should be banned from coding forever
 
                 } else {
                     // we shouldn't get here...
@@ -181,5 +208,7 @@ You can change the width and height of this box, too!" rows="10" cols = "100"></
 
         </script>
         <p><center><i>Made with spite by MayaSapphire</i></center></p>
+        <!-- If you're reading this, thanks for reading my source code
+        I hope you know that you are particularly amazing -->
     </body>
 </html>
